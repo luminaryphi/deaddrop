@@ -10,7 +10,7 @@ PREFIX_CUSTOM_ALIAS, PREFIX_TOKEN_CONTRACT_INFO};
 
 use crate::rand::{sha_256, Prng};
 
-use std::str;
+//use std::fmt::Write;
 
 //Snip 20 usage
 use secret_toolkit::{snip20::handle::{register_receive_msg,transfer_msg}};
@@ -315,10 +315,23 @@ pub fn set_alias<S: Storage, A: Api, Q: Querier>(
         let mut alias_storage = PrefixedStorage::new(PREFIX_ALIAS_TO_ADDR, &mut deps.storage);
 
         let random_seed  = new_entropy(&env,prng_seed.as_ref(),prng_seed.as_ref());
-        let alias_new = String::from(str::from_utf8(&random_seed).unwrap());
+
+        /*
+        let alias_new = String::new();
 
 
-        save(&mut alias_storage, alias_new.as_bytes(), &sender_raw)?;
+        
+        for byte in random_seed {
+            write!(&mut alias_new, "{:x}", byte).unwrap();
+        }
+        */
+
+        //let alias_new = String::from(str::from_utf8(&random_seed).unwrap());
+
+
+        //NOTE I TRIED USING RANDOM_SEED DIRECTLY AND SAVING IT
+
+        save(&mut alias_storage, &random_seed, &sender_raw)?;
 
 
     }
