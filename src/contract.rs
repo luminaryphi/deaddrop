@@ -32,7 +32,7 @@ pub fn init<S: Storage, A: Api, Q: Querier>(
     let config = Config {
         admin: deps.api.canonical_address(&msg.admin)?,
         active: true,
-        fee: msg.fee,
+        fee: msg.fee.u128(),
         fee_decimals: msg.fee_decimals,
 
     };

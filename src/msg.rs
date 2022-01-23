@@ -11,7 +11,7 @@ pub struct InitMsg {
     pub admin: HumanAddr,
 
     /// Percentage taken from tx
-    pub fee: u128,
+    pub fee: Uint128,
 
     /// Decimals in fee
     pub fee_decimals: u8,
