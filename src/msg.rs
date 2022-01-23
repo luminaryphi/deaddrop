@@ -64,6 +64,23 @@ pub enum HandleMsg {
     }
 }
 
+
+
+#[derive(Serialize, Deserialize, JsonSchema, Debug)]
+#[serde(rename_all = "snake_case")]
+pub enum HandleAnswer {
+    SetAlias {
+        confirmed_alias: String, 
+    },
+}
+
+
+
+
+
+
+
+
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq, JsonSchema)]
 #[serde(rename_all = "snake_case")]
 pub enum QueryMsg {

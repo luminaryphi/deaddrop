@@ -4,13 +4,13 @@ use cosmwasm_std::{
 };
 use cosmwasm_storage::{PrefixedStorage, ReadonlyPrefixedStorage};
 
-use crate::msg::{ConfigResponse, HandleMsg, HandleReceiveMsg, InitMsg, QueryMsg};
+use crate::msg::{ConfigResponse, HandleMsg, HandleAnswer, HandleReceiveMsg, InitMsg, QueryMsg};
 use crate::state::{Config, save, load, may_load, remove, CONFIG_KEY, PRNG_SEED_KEY, PREFIX_ALIAS_TO_ADDR,
 PREFIX_CUSTOM_ALIAS, PREFIX_TOKEN_CONTRACT_INFO};
 
 use crate::rand::{sha_256, Prng};
 
-//use std::fmt::Write;
+use std::fmt::Write;
 
 //Snip 20 usage
 use secret_toolkit::{snip20::handle::{register_receive_msg,transfer_msg}};
@@ -268,6 +268,10 @@ pub fn set_alias<S: Storage, A: Api, Q: Querier>(
     }
 
 
+    //For output purposes on completion
+    let mut alias_string = String::new();
+
+
 
     // If user elects to use a custom alias
     if alias != None {
@@ -297,6 +301,10 @@ pub fn set_alias<S: Storage, A: Api, Q: Querier>(
             // Saves new custom key and remove old key if it exists
             save(&mut alias_storage, alias.clone().unwrap().as_bytes(), &sender_raw)?;
 
+
+            //saves for output
+            alias_string = alias.clone().unwrap();
+
             if old_alias != None {
                 let old_alias_unwrapped = old_alias.unwrap();
                 remove(&mut alias_storage, old_alias_unwrapped.as_bytes());
@@ -316,17 +324,13 @@ pub fn set_alias<S: Storage, A: Api, Q: Querier>(
 
         let random_seed  = new_entropy(&env,prng_seed.as_ref(),prng_seed.as_ref());
 
-        /*
-        let alias_new = String::new();
-
-
+        
         
         for byte in random_seed {
-            write!(&mut alias_new, "{:x}", byte).unwrap();
+            write!(&mut alias_string, "{:x}", byte).unwrap();
         }
-        */
+        
 
-        //let alias_new = String::from(str::from_utf8(&random_seed).unwrap());
 
 
         //NOTE I TRIED USING RANDOM_SEED DIRECTLY AND SAVING IT
@@ -338,8 +342,12 @@ pub fn set_alias<S: Storage, A: Api, Q: Querier>(
 
 
 
+    Ok(HandleResponse {
+        messages: vec![],
+        log: vec![],
+        data: Some(to_binary(&HandleAnswer::SetAlias { confirmed_alias: alias_string })?),
+    })
 
-    Ok(HandleResponse::default())
 }
 
 
