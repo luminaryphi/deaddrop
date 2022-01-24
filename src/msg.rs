@@ -70,7 +70,7 @@ pub enum HandleMsg {
 #[serde(rename_all = "snake_case")]
 pub enum HandleAnswer {
     SetAlias {
-        confirmed_alias: String, 
+        status: ResponseStatus, 
     },
 }
 
@@ -94,4 +94,14 @@ pub struct ConfigResponse {
     pub active: bool,
     pub fee: Uint128,
     pub decimals: u8
+}
+
+
+
+
+#[derive(Serialize, Deserialize, Clone, PartialEq, JsonSchema, Debug)]
+#[serde(rename_all = "snake_case")]
+pub enum ResponseStatus {
+    Success,
+    Failure,
 }

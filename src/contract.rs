@@ -1,10 +1,10 @@
 use cosmwasm_std::{
-    to_binary, from_binary, Api, Binary, Env, Extern, HandleResponse, HandleResult, InitResponse, Querier,
+    to_binary, from_binary, log, Api, Binary, Env, Extern, HandleResponse, HandleResult, InitResponse, Querier,
     StdError, StdResult, Storage, Uint128, HumanAddr, CanonicalAddr, CosmosMsg
 };
 use cosmwasm_storage::{PrefixedStorage, ReadonlyPrefixedStorage};
 
-use crate::msg::{ConfigResponse, HandleMsg, HandleAnswer, HandleReceiveMsg, InitMsg, QueryMsg};
+use crate::msg::{ConfigResponse, HandleMsg, HandleAnswer, HandleReceiveMsg, InitMsg, QueryMsg, ResponseStatus::Success};
 use crate::state::{Config, save, load, may_load, remove, CONFIG_KEY, PRNG_SEED_KEY, PREFIX_ALIAS_TO_ADDR,
 PREFIX_CUSTOM_ALIAS, PREFIX_TOKEN_CONTRACT_INFO};
 
@@ -344,8 +344,10 @@ pub fn set_alias<S: Storage, A: Api, Q: Querier>(
 
     Ok(HandleResponse {
         messages: vec![],
-        log: vec![],
-        data: Some(to_binary(&HandleAnswer::SetAlias { confirmed_alias: alias_string })?),
+        log: vec![
+            log("alias", &alias_string)
+        ],
+        data: Some(to_binary(&HandleAnswer::SetAlias { status: Success })?),
     })
 
 }
