@@ -373,6 +373,15 @@ pub fn register_token<S: Storage, A: Api, Q: Querier>(
     snip20_hash: String
 ) -> StdResult<HandleResponse> {
 
+
+    
+    if config.admin != sender_raw {
+        return Err(StdError::generic_err(
+            "This function is only usable by the Admin",
+        ));
+    }
+
+
     let mut snip_contract_storage = PrefixedStorage::new(PREFIX_TOKEN_CONTRACT_INFO, &mut deps.storage);
     
     save(&mut snip_contract_storage, snip20_addr.0.as_bytes(), &snip20_hash)?;
