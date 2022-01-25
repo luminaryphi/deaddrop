@@ -3,7 +3,7 @@ use std::fs::create_dir_all;
 
 use cosmwasm_schema::{export_schema, remove_schemas, schema_for};
 
-use cloak::msg::{ConfigResponse, HandleMsg, InitMsg, QueryMsg};
+use deaddrop::msg::{ConfigResponse, HandleMsg, InitMsg, QueryMsg};
 //use cloak::state::Config;
 
 fn main() {
