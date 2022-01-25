@@ -373,6 +373,9 @@ pub fn register_token<S: Storage, A: Api, Q: Querier>(
     snip20_hash: String
 ) -> StdResult<HandleResponse> {
 
+    let config: Config = load(&deps.storage, CONFIG_KEY)?;  
+    let sender_raw = deps.api.canonical_address(&env.message.sender)?;
+
 
     
     if config.admin != sender_raw {

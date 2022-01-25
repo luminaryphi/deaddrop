@@ -3,8 +3,7 @@ use schemars::JsonSchema;
 use serde::{de::DeserializeOwned, Deserialize, Serialize};
 
 use secret_toolkit::{
-    serialization::{Bincode2, Json, Serde},
-    storage::{AppendStore, AppendStoreMut},
+    serialization::{Bincode2, Serde},
 };
 
 
