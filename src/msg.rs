@@ -86,14 +86,23 @@ pub enum HandleAnswer {
 pub enum QueryMsg {
     // GetCount returns the current count as a json-encoded number
     GetConfig {},
+    CheckAlias {
+        alias: String
+    },
 }
 
-// We define a custom struct for each query response
+// Returns config settings
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq, JsonSchema)]
 pub struct ConfigResponse {
     pub active: bool,
     pub fee: Uint128,
     pub decimals: u8
+}
+
+// Returns if alias exists
+#[derive(Serialize, Deserialize, Clone, Debug, PartialEq, JsonSchema)]
+pub struct AliasCheckResponse {
+    pub does_exist: bool
 }
 
 

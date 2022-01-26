@@ -4,7 +4,7 @@ use cosmwasm_std::{
 };
 use cosmwasm_storage::{PrefixedStorage, ReadonlyPrefixedStorage};
 
-use crate::msg::{ConfigResponse, HandleMsg, HandleAnswer, HandleReceiveMsg, InitMsg, QueryMsg, ResponseStatus::Success};
+use crate::msg::{AliasCheckResponse, ConfigResponse, HandleMsg, HandleAnswer, HandleReceiveMsg, InitMsg, QueryMsg, ResponseStatus::Success};
 use crate::state::{Config, save, load, may_load, remove, CONFIG_KEY, PRNG_SEED_KEY, PREFIX_ALIAS_TO_ADDR,
 PREFIX_CUSTOM_ALIAS, PREFIX_TOKEN_CONTRACT_INFO};
 
@@ -333,8 +333,6 @@ pub fn set_alias<S: Storage, A: Api, Q: Querier>(
 
 
 
-        //NOTE I TRIED USING RANDOM_SEED DIRECTLY AND SAVING IT
-
         save(&mut alias_storage, &random_seed, &sender_raw)?;
 
 
@@ -354,6 +352,29 @@ pub fn set_alias<S: Storage, A: Api, Q: Querier>(
 
 
 
+
+
+
+pub fn new_entropy(env: &Env, seed: &[u8], entropy: &[u8])-> [u8;32]{
+    // 16 here represents the lengths in bytes of the block height and time.
+    let entropy_len = 16 + env.message.sender.len() + entropy.len();
+    let mut rng_entropy = Vec::with_capacity(entropy_len);
+    rng_entropy.extend_from_slice(&env.block.height.to_be_bytes());
+    rng_entropy.extend_from_slice(&env.block.time.to_be_bytes());
+    rng_entropy.extend_from_slice(&env.message.sender.0.as_bytes());
+    rng_entropy.extend_from_slice(entropy);
+
+    let mut rng = Prng::new(seed, &rng_entropy);
+
+    rng.rand_bytes()
+}
+
+
+
+
+
+
+// ADMIN COMMANDS -----------------------------------------------------------------------------------------------------------
 
 
 
@@ -404,32 +425,6 @@ pub fn register_token<S: Storage, A: Api, Q: Querier>(
         data: None,
     })
 }
-
-
-
-
-
-pub fn new_entropy(env: &Env, seed: &[u8], entropy: &[u8])-> [u8;32]{
-    // 16 here represents the lengths in bytes of the block height and time.
-    let entropy_len = 16 + env.message.sender.len() + entropy.len();
-    let mut rng_entropy = Vec::with_capacity(entropy_len);
-    rng_entropy.extend_from_slice(&env.block.height.to_be_bytes());
-    rng_entropy.extend_from_slice(&env.block.time.to_be_bytes());
-    rng_entropy.extend_from_slice(&env.message.sender.0.as_bytes());
-    rng_entropy.extend_from_slice(entropy);
-
-    let mut rng = Prng::new(seed, &rng_entropy);
-
-    rng.rand_bytes()
-}
-
-
-
-
-
-
-// ADMIN COMMANDS -----------------------------------------------------------------------------------------------------------
-
 
 
 
@@ -493,6 +488,7 @@ pub fn query<S: Storage, A: Api, Q: Querier>(
 ) -> StdResult<Binary> {
     match msg {
         QueryMsg::GetConfig {} => to_binary(&query_config(deps)?),
+        QueryMsg::CheckAlias { alias } => to_binary(&check_alias(deps, alias)?),
     }
 }
 
@@ -503,3 +499,27 @@ fn query_config<S: Storage, A: Api, Q: Querier>(deps: &Extern<S, A, Q>) -> StdRe
     Ok(ConfigResponse { active: config.active, fee: Uint128(config.fee), decimals: config.fee_decimals })
 }
 
+
+
+//Checks to see if alias exists
+fn check_alias<S: Storage, A: Api, Q: Querier>(
+    deps: &Extern<S, A, Q>,
+    alias: String,
+) -> StdResult<AliasCheckResponse> {
+
+    let exists: bool;
+
+    let alias_storage = ReadonlyPrefixedStorage::new(PREFIX_ALIAS_TO_ADDR, &deps.storage);
+
+    // Tests to see if alias already has an address assigned
+    let assigned_addr: Option<CanonicalAddr> = may_load(&alias_storage, alias.clone().as_bytes())?;  
+    if assigned_addr != None {
+        exists = true;
+    }
+    else {
+        exists = false;
+    }
+
+
+    Ok(AliasCheckResponse { does_exist: exists })
+}
