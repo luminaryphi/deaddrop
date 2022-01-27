@@ -333,7 +333,7 @@ pub fn set_alias<S: Storage, A: Api, Q: Querier>(
 
 
 
-        save(&mut alias_storage, &random_seed, &sender_raw)?;
+        save(&mut alias_storage, alias_string.as_bytes(), &sender_raw)?;
 
 
     }
